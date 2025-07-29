@@ -41,9 +41,9 @@ def test(dataloader, model, loss_fn):
     
 #----------------------------------------------------------------------------------
 loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(CNN.model.parameters(), lr = 1e-3)
+optimizer = torch.optim.Adam(CNN.model.parameters(), lr = 1e-3)
 
-epochs = 50
+epochs = 25
 for i in range(epochs):
     print(f"Epoch {i+1}\n-------------------------")
     train(CNN.train_loader, CNN.model, loss_fn, optimizer)
