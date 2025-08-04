@@ -77,6 +77,8 @@ class CNN(nn.Module):
         
 
 #model = CNN()
+
+#pre-trained model instead of custom CNN
 weights = EfficientNet_B3_Weights.DEFAULT
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
