@@ -1,32 +1,36 @@
 import os
+import torch
 import torch.nn as nn
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import collections.abc
+from torchvision.models import efficientnet_b3, EfficientNet_B3_Weights
 
 collections.Iterable = collections.abc.Iterable
 
 
 #number of classifications and input shape
-num_classes = 7
+num_classes = 10
 input_size = 3*224*224
 input_channels = 3
 
 transform = transforms.Compose([
-    transforms.Resize((224, 224)),
+    transforms.Resize((300, 300)),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomRotation(10),
     transforms.ToTensor()
     ]
 )
 
-train_path = r"C:\Users\chris\OneDrive\Desktop\SDSU\Pavement Distress\Potato\Dataset/train"
-test_path = r"C:\Users\chris\OneDrive\Desktop\SDSU\Pavement Distress\Potato\Dataset/test"
+train_path = r"C:\Users\chris\OneDrive\Desktop\SDSU\Pavement Distress\Potato\FinalDataset\train"
+test_path = r"C:\Users\chris\OneDrive\Desktop\SDSU\Pavement Distress\Potato\FinalDataset\test"
 
 train_dataset = datasets.ImageFolder(root = train_path, transform=transform)
 test_dataset = datasets.ImageFolder(root = test_path, transform=transform)
 
-train_loader = DataLoader(train_dataset, batch_size= 16, shuffle = True)
-test_loader = DataLoader(test_dataset, batch_size= 16, shuffle = True)
+train_loader = DataLoader(train_dataset, batch_size= 8, shuffle = True)
+test_loader = DataLoader(test_dataset, batch_size= 8, shuffle = True)
 
 #image shape: [3,224,224]
 class CNN(nn.Module):
@@ -72,4 +76,10 @@ class CNN(nn.Module):
         
         
 
-model = CNN()
+#model = CNN()
+weights = EfficientNet_B3_Weights.DEFAULT
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+model = efficientnet_b3(weights)
+model.classifier[1] = nn.Linear(model.classifier[1].in_features,10)
+model = model.to(device)

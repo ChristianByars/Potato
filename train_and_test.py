@@ -1,4 +1,4 @@
-import CNN
+from CNN import model, device, train_loader, test_loader
 import torch
 import torch.nn as nn
 from torchvision import datasets, transforms
@@ -7,10 +7,11 @@ from torch.utils.data import Dataset, DataLoader
 
 def train(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    batch_size = 16
+    batch_size = 8
     #set model to training mode
     model.train()
     for batch, (X,y) in enumerate(dataloader):
+        X, y = X.to(device), y.to(device)
         prediction = model(X)
         loss = loss_fn(prediction, y)
         
@@ -31,6 +32,7 @@ def test(dataloader, model, loss_fn):
     
     with torch.no_grad():
         for X, y in dataloader:
+            X, y = X.to(device), y.to(device)
             pred = model(X)
             test_loss += loss_fn(pred,y).item()
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
@@ -41,13 +43,14 @@ def test(dataloader, model, loss_fn):
     
 #----------------------------------------------------------------------------------
 loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(CNN.model.parameters(), lr = 1e-3)
+optimizer = torch.optim.Adam(model.parameters(), lr = 1e-3)
 
-epochs = 25
+epochs = 10
 for i in range(epochs):
     print(f"Epoch {i+1}\n-------------------------")
-    train(CNN.train_loader, CNN.model, loss_fn, optimizer)
-    test(CNN.test_loader, CNN.model, loss_fn)
+    train(train_loader, model, loss_fn, optimizer)
+    test(test_loader, model, loss_fn)
 print("Done")
 
-torch.save(CNN.model.state_dict(), "cnn_model.pth")
+# torch.save(CNN.model.state_dict(), "cnn_model.pth")
+torch.save(model.state_dict(), "EfficientNetModel.pth")
